@@ -7,11 +7,11 @@ __pycache__/
 # C extensions
 *.so
 
+# pycharm
 .idea/
 
-# pdm
-.pdm.toml
-.pdm-python
+# rye
+.python-version
 
 # Distribution / packaging
 .Python
