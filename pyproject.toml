@@ -1,6 +1,6 @@
 [project]
 name = "sanic-api"
-version = "0.3.0a1"
+version = "0.3.0a3"
 keywords = ["Sanic", "异步", "Sanic扩展"]
 description = "Sanic 框架实用API工具集，拥有自动生成文档、参数校验、配置的导入、日志功能的优化等功能，更好的助力接口的开发"
 authors = [
@@ -44,7 +44,7 @@ dependencies = [
     "sentry-sdk>=2.17.0",
     # loki日志推送
     "loki-logger-handler>=0.1.4",
-    "requests>=2.32.3",
+    "requests>=2.31.0,<2.32.dev0",
 ]
 
 [project.urls]
