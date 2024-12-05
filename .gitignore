@@ -10,6 +10,8 @@ __pycache__/
 # pycharm
 .idea/
 
+.DS_Store
+
 # rye
 .python-version
 
