@@ -12,14 +12,14 @@ class Request(SanicRequest):
     加入便于接口参数获取校验的方法
     """
 
-    request_type: type["Request"] | None
-    json_data_type: type[BaseModel] | None
-    form_data_type: type[BaseModel] | None
-    query_data_type: type[BaseModel] | None
-
     json_data: BaseModel
     form_data: BaseModel
     query_data: BaseModel
+
+    _request_type: type["Request"] | None
+    _json_data_type: type[BaseModel] | None
+    _form_data_type: type[BaseModel] | None
+    _query_data_type: type[BaseModel] | None
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -64,22 +64,22 @@ class Request(SanicRequest):
         """
 
         # 从函数参数注解上面获取类型
-        self.json_data_type = self._get_type("json_data", BaseModel)
-        self.form_data_type = self._get_type("form_data", BaseModel)
-        self.query_data_type = self._get_type("query_data", BaseModel)
-        self.request_type = self._get_type("request", Request)
+        self._json_data_type = self._get_type("json_data", BaseModel)
+        self._form_data_type = self._get_type("form_data", BaseModel)
+        self._query_data_type = self._get_type("query_data", BaseModel)
+        self._request_type = self._get_type("request", Request)
 
         # 没有json_data参数 但是有自定义的request类就从request类上面获取json_data类型
-        if self.request_type and not self.json_data_type:
-            self.json_data_type = self.request_type.__annotations__.get("json_data")
+        if self._request_type and not self._json_data_type:
+            self._json_data_type = self._request_type.__annotations__.get("json_data")
 
         # 没有form_data参数 但是有自定义的request类就从request类上面获取form_data类型
-        if self.request_type and not self.form_data_type:
-            self.form_data_type = self.request_type.__annotations__.get("form_data")
+        if self._request_type and not self._form_data_type:
+            self._form_data_type = self._request_type.__annotations__.get("form_data")
 
         # 没有query_data参数 但是有自定义的request类就从request类上面获取query_data类型
-        if self.request_type and not self.query_data_type:
-            self.query_data_type = self.request_type.__annotations__.get("query_data")
+        if self._request_type and not self._query_data_type:
+            self._query_data_type = self._request_type.__annotations__.get("query_data")
 
     # noinspection PyBroadException
     def _load_data(self):
@@ -113,8 +113,8 @@ class Request(SanicRequest):
             json_data = self.json
         except Exception:
             json_data = None
-        if json_data and self.json_data_type:
-            self.json_data = self.json_data_type(**json_data)
+        if json_data and self._json_data_type:
+            self.json_data = self._json_data_type(**json_data)
             _set_arg("json_data", self.json_data)
 
         # 由于form和query的参数的key是可以重复的，所以默认类型是类似dict[str, list]的
@@ -123,16 +123,16 @@ class Request(SanicRequest):
             form_data = self.form
         except Exception:
             form_data = None
-        if form_data and self.form_data_type:
-            form_data = _proc_param_data(form_data, self.form_data_type)
-            self.form_data = self.form_data_type(**form_data)
+        if form_data and self._form_data_type:
+            form_data = _proc_param_data(form_data, self._form_data_type)
+            self.form_data = self._form_data_type(**form_data)
             _set_arg("form_data", self.form_data)
 
         try:
             query_data = self.args
         except Exception:
             query_data = None
-        if query_data and self.query_data_type:
-            query_data = _proc_param_data(query_data, self.query_data_type)
-            self.query_data = self.query_data_type(**query_data)
+        if query_data and self._query_data_type:
+            query_data = _proc_param_data(query_data, self._query_data_type)
+            self.query_data = self._query_data_type(**query_data)
             _set_arg("query_data", self.query_data)
