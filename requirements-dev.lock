@@ -81,6 +81,7 @@ tomli==2.1.0
 tracerite==1.1.1
     # via sanic
 typing-extensions==4.12.2
+    # via multidict
     # via pydantic
     # via pydantic-core
     # via sanic
