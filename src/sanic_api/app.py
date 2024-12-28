@@ -42,14 +42,10 @@ class BaseApp:
         motd_display = {"envornment": settings.envornment}
         config = {"access_log": settings.access_log, "motd_display": motd_display}
         if settings.mode == RunModeEnum.DEBNUG:
-            cors_origins = "*"
             config.update({"auto_reload": settings.auto_reload, "workers": 1, "debug": True})
         else:
-            cors_origins = ",".join(settings.cors_origins)
             config.update({"fast": True, "auto_reload": False})
 
-        app.config.LOGGING = True
-        app.config.CORS_ORIGINS = cors_origins
         app.prepare(settings.host, settings.port, **config)
         Sanic.serve(primary=app, app_loader=loader)
 
@@ -60,7 +56,10 @@ class BaseApp:
 
         """
         app = Sanic(self.name, configure_logging=False, request_class=Request)
+
         self._setup_logger(app)
+        self._setup_config(app)
+
         app.main_process_stop(self._main_process_stop)
         app.main_process_start(self._main_process_start)
         app.before_server_start(self._before_server_start)
@@ -144,11 +143,38 @@ class BaseApp:
         logger.info(f"工作进程 {app.m.pid} 停止")
         await self.after_server_stop(app)
 
+    def _setup_config(self, app: Sanic):
+        """
+        设置配置
+        Args:
+            app: Sanic App
+
+        Returns:
+
+        """
+        app.config.LOGGING = True
+        self._setup_cors(app)
+
+    def _setup_cors(self, app: Sanic):
+        """
+        设置跨域: 开发模式下允许所有跨域，生产模式下使用配置中的跨域列表
+        Args:
+            app: Sanic App
+
+        Returns:
+
+        """
+        if self.settings.mode == RunModeEnum.DEBNUG:
+            app.config.CORS_ORIGINS = "*"
+            app.config.CORS_SEND_WILDCARD = True
+        else:
+            app.config.CORS_ORIGINS = ",".join(self.settings.cors_origins)
+
     async def _setup_route(self, app: Sanic):
         """
         设置路由和蓝图的内部方法，自动设置一个ping的路由
         Args:
-            app:
+            app: Sanic App
 
         Returns:
 
@@ -160,7 +186,7 @@ class BaseApp:
         """
         设置日志
         Args:
-            app:
+            app: Sanic App
 
         Returns:
 
@@ -181,7 +207,7 @@ class BaseApp:
         """
         如果存在sentryURL配置，则自动设置sentry哨兵
         Args:
-            _app:
+            _app: Sanic App
 
         Returns:
 
@@ -208,7 +234,7 @@ class BaseApp:
         """
         主进程启动的方法
         Args:
-            app:
+            app: Sanic App
 
         Returns:
 
@@ -218,7 +244,7 @@ class BaseApp:
         """
         主进程停止的方法
         Args:
-            app:
+            app: Sanic App
 
         Returns:
 
@@ -228,7 +254,7 @@ class BaseApp:
         """
         工作进程启动之前的方法。
         Args:
-            app:
+            app: Sanic App
 
         Returns:
 
@@ -238,7 +264,7 @@ class BaseApp:
         """
         工作进程停止之前的方法。
         Args:
-            app:
+            app: Sanic App
 
         Returns:
 
@@ -248,7 +274,7 @@ class BaseApp:
         """
         工作进程启动之后的方法。
         Args:
-            app:
+            app: Sanic App
 
         Returns:
 
@@ -258,7 +284,7 @@ class BaseApp:
         """
         工作进程停止之后的方法。
         Args:
-            app:
+            app: Sanic App
 
         Returns:
 
@@ -268,7 +294,7 @@ class BaseApp:
         """
         继承此方法去设置蓝图及路由
         Args:
-            app:
+            app: Sanic App
 
         Returns:
 
