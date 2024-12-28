@@ -1,6 +1,6 @@
 [project]
 name = "sanic-api"
-version = "0.3.0a3"
+version = "0.3.0a4"
 keywords = ["Sanic", "异步", "Sanic扩展"]
 description = "Sanic 框架实用API工具集，拥有自动生成文档、参数校验、配置的导入、日志功能的优化等功能，更好的助力接口的开发"
 authors = [
@@ -60,6 +60,7 @@ build-backend = "hatchling.build"
 managed = true
 dev-dependencies = [
     "pre-commit>=4.0.1",
+    "twine>=6.0.1",
 ]
 include = [
     "src/sanic_api/"
@@ -152,8 +153,8 @@ unfixable = []
 
 
 [tool.rye.scripts]
-publish_testpypi = { cmd = "rye publish --repository testpypi --repository-url https://test.pypi.org/legacy/" }
-publish_pypi = { cmd = "rye publish" }
+publish_testpypi = { cmd = "rye run twine upload -r testpypi dist/*" }
+publish_pypi = { cmd = "rye run twine upload dist/*" }
 sb = { cmd = "rye build --clean" }
 spt = { chain = ["sb", "publish_testpypi"] }
 sp = { chain = ["sb", "publish_pypi"] }
